@@ -1,6 +1,7 @@
 // #include <string.h>
 #include <stdio.h>
 #include <cassert>
+#include <stdlib.h>
 // #include <TXLib.h>
 
 char *strcpy (char dest[], const char src[]);
@@ -10,10 +11,13 @@ int strcmp (const char s1[], const char s2[]);
 const char *strchr (const char s[], int c);
 size_t strlen (const char* s);
 char *strstr(char *haystack, const char *needle);
-void ascii_print_2d(const int arr[]);
+void print_2d(const char* arr[], size_t size_i);
 void print_triangle_arr(const int arr[], const size_t size_i);
-const int* adressation_for_2d(const int arr[], size_t i, size_t j);
+const char* getter(const char arr[], size_t size_j, size_t i, size_t j);
+char** fget_strings(const char filename[], char* data[]);
 
+const int BUFSIZE = 100;
+const int DATASIZE = 10;
 
 int main()
     {
@@ -52,25 +56,33 @@ int main()
     // char al[] = "123456789";
     // printf("%p %p %p %p", strchr(al, '1'), strchr(al, '2'), strchr(al, '\0'), strchr(al, '0'));
 
-    const size_t size = 4;
-    int my_arr[int(((size + 1) / 2.0) * size)]  =  {1,
-                                                    2, 2,
-                                                    3, 3, 3,
-                                                    4, 4, 4, 4};
-    print_triangle_arr(my_arr, size);
-    putchar('\n');
+    // const size_t size = 4;
+    // int my_arr[int(((size + 1) / 2.0) * size)]  =  {1,
+    //                                                 2, 2,
+    //                                                 3, 3, 3,
+    //                                                 4, 4, 4, 4};
+    // print_triangle_arr(my_arr, size);
+    // putchar('\n');
 
     // const size_t i = 5, j = 7;
     // char new_arr[i][j]  =  {{'a', 'b', 'c', 'd', 'e'},
     //                         {'f', 'g', 'h'},
     //                         "123"};
-    int arr[]  =  {3, 4,
-                            1, 2, 3, 4,
-                            9, 8, 7, 6,
-                            20, 10, 30, 40};
+    // int arr[]  =  {3, 4,
+    //                         1, 2, 3, 4,
+    //                         9, 8, 7, 6,
+    //                         20, 10, 30, 40};
 
-    ascii_print_2d((int*)arr);
+    // print_2d((char*)new_arr, i, j);
 
+    char* data[DATASIZE] = {0};
+    fget_strings("input.txt", data);
+    // print_2d((const char**)fdata, DATASIZE, BUFSIZE);
+    for (int i = 0; i < DATASIZE; i++)
+        {
+        if(data[i]) printf("%s", data[i]);
+        free(data[i]);
+        }
     return 0;
     }
 
@@ -88,7 +100,7 @@ char *strcpy (char dest[], const char src[])
 }
 
 /* Copy no more than N characters of SRC to DEST.  */
-char *strncpy (char dest[], const char src[], size_t n)
+char* strncpy (char dest[], const char src[], size_t n)
     {
     assert(dest && src);
     assert(dest != src);
@@ -177,15 +189,15 @@ char *strstr(char haystack[], const char needle[])
     }
 
 //---------------------------------------------------------------------------------------------------------------------------
+// functions for printing 2d arrays there
 
 /* Prints 2-dimensional array */
-void ascii_print_2d(const int arr[])
+void print_2d(const char* arr[], size_t size_i)
     {
     assert(arr);
-    for (size_t i = 0; (int)i < arr[0]; i++)
+    for (size_t i = 0; i < size_i; i++)
         {
-        for (size_t j = 0; (int)j < arr[1]; j++)
-            printf("%d ", *(adressation_for_2d(arr, i, j)));
+        printf("%s\n", arr[i]);
         putchar('\n');
         }
     return;
@@ -208,10 +220,29 @@ void print_triangle_arr(const int arr[], const size_t size_i)
 
 
 /* Returns adress of arr[i][j] , where arr[0] & arr[1] - sizes of array*/
-const int* adressation_for_2d(const int arr[], size_t i, size_t j)
+const char* getter(const char arr[], size_t size_j, size_t i, size_t j)
     {
     assert(arr);
-    assert(arr[0] > 0 && arr[1] > 0);
-    return (arr + (int)i * arr[1] + j + 2);
-    // return nullptr;
+    return (arr + i * size_j + j);
+    }
+
+//---------------------------------------------------------------------------------------------------------------------------
+// functions for reading from file
+
+char** fget_strings(const char filename[], char* data[])
+    {
+    assert(filename && data);
+    FILE *fp = nullptr;
+    assert(fp = fopen(filename, "r"));
+    char buff[BUFSIZE] = {};
+
+    for (int i = 0; fgets(buff, BUFSIZE, fp) && i < DATASIZE; i++)
+        {
+        assert(buff);
+        size_t n = strlen(buff);
+        assert(n);
+        assert(strncpy(data[i] = (char*)calloc(n + 3, sizeof(char)), buff, n + 1));
+        }
+    fclose(fp);
+    return data;
     }
